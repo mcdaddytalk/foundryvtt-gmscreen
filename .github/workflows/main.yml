@@ -14,24 +14,29 @@ jobs:
       - name: Extract tag version number
         id: get_version
         uses: battila7/get-version-action@v2
+      
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - run: npm install
+      - run: npm run build
 
       # Substitute the Manifest and Download URLs in the `module.json`.
       - name: Substitute Manifest and Download Links For Versioned Ones
         id: sub_manifest_link_version
         uses: microsoft/variable-substitution@v1
         with:
-          files: 'module.json'
+          files: './dist/module.json'
         env:
-          version: ${{github.event.release.tag_name}}
+          version: ${{steps.get_version.outputs.version-without-v}}
+          #esmodules.0: "/scripts/bundle.min.mjs"
           url: https://github.com/${{github.repository}}
           manifest: https://github.com/${{github.repository}}/releases/latest/download/module.json
           download: https://github.com/${{github.repository}}/releases/download/${{github.event.release.tag_name}}/module.zip
-
-      # Install packages.
-      - run: npm install
-
-      # Build distribution.
-      - run: npm run build
+          readme: "https://github.com/${{github.repository}}/blob/master/README.md"
+          changelog: "https://raw.githubusercontent.com/${{github.repository}}/master/CHANGELOG.md"
+          license: "https://github.com/mouse0270/${{github.repository}}/blob/master/LICENSE"
+          bugs: "https://github.com/${{github.repository}}/issues"
 
       # create a zip file with all files required by the module to add to the release
       - name: Zip Files
