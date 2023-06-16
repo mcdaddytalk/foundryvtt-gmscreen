@@ -1,5 +1,7 @@
 {
-  "description": "Provides a bare-bones Foundry module template repo to get set up with using the TyphonJS Runtime Library and Svelte with ES Modules.",
+  "name": "foundryvtt-gmscreen",
+	"version": "3.1.1",
+	"description": "",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -17,7 +19,10 @@
     "@typhonjs-fvtt/eslint-config-foundry.js": "^0.8.0",
     "eslint": "^8",
     "svelte-preprocess": "^5",
-    "vite": "^4"
+    "vite": "^4.3.9",
+    "rimraf": "^5.0.1",
+		"rollup-plugin-copy": "^3.4.0",
+		"rollup-plugin-scss": "^4.0.0"
   },
   "browserslist": [">5%", "not IE 11"],
   "scripts": {

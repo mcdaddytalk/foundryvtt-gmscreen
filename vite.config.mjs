@@ -1,5 +1,7 @@
+import * as fsPromises from 'fs/promises';
 import { svelte }    from '@sveltejs/vite-plugin-svelte';
 import resolve       from '@rollup/plugin-node-resolve'; // This resolves NPM modules from node_modules.
+import copy from 'rollup-plugin-copy';
 import preprocess    from 'svelte-preprocess';
 import {
    postcssConfig,
@@ -10,12 +12,12 @@ import {
 
 // For convenience, you just need to modify the package ID below as it is used to fill in default proxy settings for
 // the dev server.
-const s_PACKAGE_ID = 'modules/template-svelte-esm';
+const s_PACKAGE_ID = 'modules/foundryvtt-gmscreen';
 
 // A short additional string to add to Svelte CSS hash values to make yours unique. This reduces the amount of
 // duplicated framework CSS overlap between many TRL packages enabled on Foundry VTT at the same time. 'tse' is chosen
 // by shortening 'template-svelte-esm'.
-const s_SVELTE_HASH_ID = 'tse';
+const s_SVELTE_HASH_ID = 'gmscr';
 
 const s_COMPRESS = false;  // Set to true to compress the module bundle.
 const s_SOURCEMAPS = true; // Generate sourcemaps for the bundle (recommended).
@@ -28,6 +30,40 @@ const s_RESOLVE_CONFIG = {
 
 export default () =>
 {
+   const updateModuleManifestPlugin = () => 
+   {
+      return {
+         name: 'update-module-manifest',
+         async writeBundle() 
+         {
+            const packageContents = JSON.parse(
+               await fsPromises.readFile("./package.json", "utf-8")
+             );
+             const moduleVersion = packageContents.version;
+             const githubProject = packageContents['repository.url'] || '';
+             let githubTag;
+             const manifestJson = JSON.parse(
+               await fsPromises.readFile('src/module.json', 'utf-8')
+             );
+             if (moduleVersion) 
+             {
+               githubTag = `v${moduleVersion}`;
+               manifestJson['version'] = moduleVersion;
+             }
+             if (githubProject) 
+             {
+               const baseUrl = `${githubProject}/releases`;
+               manifestJson['manifest'] = `${baseUrl}/latest/download/module.json`;
+               if (githubTag) 
+               {
+                 manifestJson['download'] = `${baseUrl}/download/${githubTag}/module.zip`;
+               }
+             }
+             await fsPromises.writeFile('dist/module.json', JSON.stringify(manifestJson, null, 4));
+         }
+      };   
+   };
+
    /** @type {import('vite').UserConfig} */
    return {
       root: 'src/',                 // Source location / esbuild root.
@@ -71,8 +107,9 @@ export default () =>
       },
 
       build: {
-         outDir: __dirname,
-         emptyOutDir: false,
+         // eslint-disable-next-line no-undef
+         outDir: `${__dirname  }/dist`,
+         emptyOutDir: true,
          sourcemap: s_SOURCEMAPS,
          brotliSize: true,
          minify: s_COMPRESS ? 'terser' : false,
@@ -93,6 +130,21 @@ export default () =>
       },
 
       plugins: [
+         // scss({
+         //    output: 'dist/foundryvtt-gmScreen.css',
+         //    sourceMap: true,
+         //    watch: ['src/**/*.scss'],
+         // }),
+         copy({
+            targets: [
+              { src: 'src/templates', dest: 'dist' },
+              { src: 'src/lang', dest: 'dist' },
+              { src: 'src/fonts', dest: 'dist' },
+              { src: 'src/assets', dest: 'dist' },
+            ],
+            hook: 'writeBundle',
+         }),
+         updateModuleManifestPlugin(),
          svelte({
             compilerOptions: {
                // Provides a custom hash adding the string defined in `s_SVELTE_HASH_ID` to scoped Svelte styles;
@@ -106,6 +158,7 @@ export default () =>
 
          resolve(s_RESOLVE_CONFIG)  // Necessary when bundling npm-linked packages.
       ]
-   };
+   };   
 };
+
 
