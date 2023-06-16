@@ -1,9 +1,15 @@
 {
-  "id": "foundryvtt-gmscreen",
+  "id": "gm-screen",
   "title": "GM Screen",
   "description": "Creates a Configurable modular grid that GMs can populate with journal entries, rollable tables, etc.  Original by Andrew Krigline - https://github.com/ElfFriend-DnD/foundryvtt-gmScreen",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "authors": [
+    {
+			"name": "Andrew Krigline",
+			"discord": "Calego#0914",
+			"url": "https://github.com/ElfFriend-DnD",
+			"patreon": "ElfFriend_DnD"
+		},
     {
       "name": "McDaddyTalk - kbtalkin#0012",
       "url": "https://github.com/mcdaddytalk",
@@ -90,5 +96,6 @@
   "download": "https://github.com/mcdaddytalk/foundryvtt-gmscreen/releases/download/v0.0.0/module.zip",
   "protected": false,
   "coreTranslation": false,
-  "library": false
+  "library": false,
+  "manifestPlusVersion": "1.1.0"
 }
