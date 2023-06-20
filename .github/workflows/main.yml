@@ -41,7 +41,7 @@ jobs:
       # create a zip file with all files required by the module to add to the release
       - name: Zip Files
         working-directory: ./dist
-        run: zip -r ./module.zip ./*
+        run: zip -r ../module.zip ./*
         
       # Create a release for this specific version.
       - name: Update Release with Files
